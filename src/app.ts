@@ -1,18 +1,14 @@
 import 'dotenv/config';
 import express, { NextFunction, Request, Response } from 'express';
-import PostModel from './models/post';
+import postRoutes from './routes/postRoutes';
+import morgan from 'morgan';
 
 const app = express();
 
-app.get('/', async (req, res, next) => {
-  try {
-    // throw Error('bazinga!!');
-    const posts = await PostModel.find().exec();
-    res.status(200).json(posts);
-  } catch (error) {
-    next(error);
-  }
-});
+app.use(morgan('dev'));
+app.use(express.json());
+
+app.use('/api/posts', postRoutes);
 
 app.use((req, res, next) => {
   next(Error('Endpoint does not exist!'));
