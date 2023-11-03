@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express, { NextFunction, Request, Response } from 'express';
 import postRoutes from './routes/postRoutes';
 import morgan from 'morgan';
+import createHttpError, { isHttpError } from 'http-errors';
 
 const app = express();
 
@@ -11,15 +12,19 @@ app.use(express.json());
 app.use('/api/posts', postRoutes);
 
 app.use((req, res, next) => {
-  next(Error('Endpoint does not exist!'));
+  next(createHttpError('Endpoint does not exist!'));
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
   console.error(error);
   let errorMessage = 'An unknown error occurred!';
-  if (error instanceof Error) errorMessage = error.message;
-  res.status(500).json({ error: errorMessage });
+  let statusCode = 500;
+  if (isHttpError(error)) {
+    statusCode = error.status;
+    errorMessage = error.message;
+  }
+  res.status(statusCode).json({ error: errorMessage });
 });
 
 export default app;
