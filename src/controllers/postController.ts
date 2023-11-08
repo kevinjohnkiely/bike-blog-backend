@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 
 export const getPosts: RequestHandler = async (req, res, next) => {
   try {
+    // throw createHttpError(401)
     const posts = await PostModel.find().exec();
     res.status(200).json(posts);
   } catch (error) {
